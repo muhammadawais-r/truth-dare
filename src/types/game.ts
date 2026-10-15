@@ -1,6 +1,16 @@
-export type PromptType = 'truth' | 'dare';
+export type PromptType = 'truth' | 'dare' | 'wildcard';
 
 export type ListMode = 'saved' | 'temporary';
+
+export type WildcardCategory = 'truth' | 'dare' | 'twist';
+
+export interface WildcardPrompt {
+  id: string;
+  category: WildcardCategory;
+  title: string;
+  text: string;
+  badge: string;
+}
 
 export interface PromptItem {
   id: string;
@@ -21,7 +31,8 @@ export type ScreenState =
   | 'QUESTION_MANAGER'
   | 'SPINNER'
   | 'CHOICE'
-  | 'PROMPT_DISPLAY';
+  | 'PROMPT_DISPLAY'
+  | 'WILDCARD_SELECT';
 
 export interface GameSettings {
   soundEnabled: boolean;

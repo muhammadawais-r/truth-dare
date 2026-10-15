@@ -45,6 +45,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <span>Single Device Pass & Play</span>
           <span aria-hidden="true" className="text-slate-600">·</span>
           <span>Custom Lists</span>
+          <span aria-hidden="true" className="text-slate-600">·</span>
+          <span className="text-amber-400 font-semibold">Wildcard Mode</span>
         </div>
       </div>
 
@@ -121,12 +123,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           <div className="p-4 rounded-xl bg-slate-900/60 border border-slate-800/80 flex flex-col items-start gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 font-bold text-sm">
               4
             </div>
-            <h3 className="text-sm font-bold text-white">Truth or Dare</h3>
+            <h3 className="text-sm font-bold text-white">Truth, Dare or Wildcard</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Pick Truth or Dare. Swap a prompt if you wish, answer honestly, and pass the device along!
+              Pick Truth, Dare, or flip 1 of 6 mystery cards in Wildcard Mode for surprise twists!
             </p>
           </div>
         </div>

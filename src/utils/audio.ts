@@ -163,6 +163,64 @@ class SoundController {
   }
 
   /**
+   * Shimmering mystical tone for Wildcard
+   */
+  public playWildcardTone() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const notes = [440, 554.37, 659.25, 830.61, 1108.73]; // A4, C#5, E5, G#5, C#6
+      notes.forEach((freq, idx) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.05);
+
+        gain.gain.setValueAtTime(0.12, ctx.currentTime + idx * 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.05 + 0.35);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(ctx.currentTime + idx * 0.05);
+        osc.stop(ctx.currentTime + idx * 0.05 + 0.4);
+      });
+    } catch {
+      // Ignore audio failure
+    }
+  }
+
+  /**
+   * Crisp whoosh/snap for card flip
+   */
+  public playCardFlip() {
+    if (!this.enabled) return;
+    try {
+      const ctx = this.getContext();
+      if (!ctx) return;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(300, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(900, ctx.currentTime + 0.08);
+
+      gain.gain.setValueAtTime(0.14, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.09);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start();
+      osc.stop(ctx.currentTime + 0.1);
+    } catch {
+      // Ignore audio failure
+    }
+  }
+
+  /**
    * Swish sound for rerolling/changing question
    */
   public playReroll() {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Player, PromptItem, PromptType, ListMode, 
-  ScreenState, GameSettings, PlayerScore, PLAYER_COLORS 
+  ScreenState, GameSettings, PlayerScore, PLAYER_COLORS, WildcardPrompt 
 } from './types/game';
 import { 
   loadSavedTruths, saveTruths, loadSavedDares, saveDares, 
@@ -9,6 +9,7 @@ import {
   saveSettings, clearSavedQuestions 
 } from './utils/storage';
 import { sounds } from './utils/audio';
+import { WILDCARD_LIBRARY, drawSixWildcards } from './utils/wildcardLibrary';
 
 import { Navbar } from './components/Navbar';
 import { HomeScreen } from './components/HomeScreen';
@@ -17,6 +18,7 @@ import { QuestionManagerScreen } from './components/QuestionManagerScreen';
 import { SpinnerScreen } from './components/SpinnerScreen';
 import { ChoiceScreen } from './components/ChoiceScreen';
 import { PromptDisplayScreen } from './components/PromptDisplayScreen';
+import { WildcardScreen } from './components/WildcardScreen';
 import { SettingsModal } from './components/SettingsModal';
 
 export default function App() {
@@ -132,6 +134,11 @@ export default function App() {
   const [unusedDareIds, setUnusedDareIds] = useState<string[]>([]);
   const [scores, setScores] = useState<Record<string, PlayerScore>>({});
 
+  // Wildcard Deck Tracking
+  const [usedWildcardIds, setUsedWildcardIds] = useState<string[]>([]);
+  const [currentWildcardCards, setCurrentWildcardCards] = useState<WildcardPrompt[]>([]);
+  const [isWildcardDeckExhausted, setIsWildcardDeckExhausted] = useState(false);
+
   // Helper to pick next randomized prompt from list avoiding immediate repetition
   const pickNextPrompt = useCallback((
     type: PromptType, 
@@ -169,6 +176,7 @@ export default function App() {
     // Reset shuffle pools
     setUnusedTruthIds(activeTruths.map(i => i.id));
     setUnusedDareIds(activeDares.map(i => i.id));
+    setUsedWildcardIds([]);
 
     // Reset scores for participating players
     const initialScores: Record<string, PlayerScore> = {};
@@ -190,14 +198,39 @@ export default function App() {
     setCurrentScreen('CHOICE');
   };
 
-  // Player chooses Truth or Dare
+  // Player chooses Truth, Dare, or Wildcard
   const handleSelectChoice = (type: PromptType) => {
     setCurrentPromptType(type);
+
+    if (type === 'wildcard') {
+      const { cards, isDeckExhausted } = drawSixWildcards(new Set(usedWildcardIds));
+      setCurrentWildcardCards(cards);
+      setIsWildcardDeckExhausted(isDeckExhausted);
+      setCurrentScreen('WILDCARD_SELECT');
+      return;
+    }
+
     const chosenPrompt = pickNextPrompt(type);
     if (chosenPrompt) {
       setCurrentPrompt(chosenPrompt);
       setCurrentScreen('PROMPT_DISPLAY');
     }
+  };
+
+  // Card is revealed in Wildcard mode
+  const handleWildcardRevealed = (prompt: WildcardPrompt) => {
+    setUsedWildcardIds(prev => {
+      if (prev.includes(prompt.id)) return prev;
+      return [...prev, prompt.id];
+    });
+  };
+
+  // Reset Wildcard deck history manually
+  const handleResetWildcardHistory = () => {
+    setUsedWildcardIds([]);
+    const { cards, isDeckExhausted } = drawSixWildcards(new Set());
+    setCurrentWildcardCards(cards);
+    setIsWildcardDeckExhausted(isDeckExhausted);
   };
 
   // Player requests "Change Question" or "Change Dare"
@@ -335,6 +368,21 @@ export default function App() {
             onSelectChoice={handleSelectChoice}
             truthCount={activeTruths.length}
             dareCount={activeDares.length}
+            wildcardRemainingCount={Math.max(0, WILDCARD_LIBRARY.length - usedWildcardIds.length)}
+          />
+        )}
+
+        {currentScreen === 'WILDCARD_SELECT' && selectedPlayer && (
+          <WildcardScreen
+            player={selectedPlayer}
+            cards={currentWildcardCards}
+            revealedCount={usedWildcardIds.length}
+            totalLibraryCount={WILDCARD_LIBRARY.length}
+            isDeckExhausted={isWildcardDeckExhausted}
+            onCardRevealed={handleWildcardRevealed}
+            onNextTurn={handleNextTurn}
+            onResetDeckHistory={handleResetWildcardHistory}
+            keepScore={settings.keepScore}
           />
         )}
 
