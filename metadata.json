@@ -1,0 +1,6 @@
+{
+  "name": "Truth or Dare - Spin & Play Party Game",
+  "description": "A modern, clean, and interactive Truth or Dare party game for 2–10 players on one device with custom question lists and fair wheel spinner.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
